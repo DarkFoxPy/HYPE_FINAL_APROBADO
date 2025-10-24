@@ -15,7 +15,7 @@ export default function RegisterPage() {
   const router = useRouter()
   const { register } = useAuthStore()
   const [loading, setLoading] = useState(false)
-  const [accountType, setAccountType] = useState<"participant" | "coordinator">("participant")
+  const [accountType, setAccountType] = useState<"attendee" | "organizer">("attendee")
   const [profilePicture, setProfilePicture] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: "",
@@ -52,7 +52,7 @@ export default function RegisterPage() {
       return
     }
 
-    if (accountType === "coordinator") {
+    if (accountType === "organizer") {
       if (!formData.companyName || !formData.ruc || !formData.businessSector) {
         toast.error("Por favor completa todos los campos de empresa")
         return
@@ -68,9 +68,9 @@ export default function RegisterPage() {
         email: formData.email,
         password: formData.password,
         role: accountType,
-        companyName: accountType === "coordinator" ? formData.companyName : undefined,
-        ruc: accountType === "coordinator" ? formData.ruc : undefined,
-        businessSector: accountType === "coordinator" ? formData.businessSector : undefined,
+        companyName: accountType === "organizer" ? formData.companyName : "",
+        ruc: accountType === "organizer" ? formData.ruc : "",
+        businessSector: accountType === "organizer" ? formData.businessSector : "",
       })
       toast.success("¡Cuenta creada! Por favor verifica tu email.")
       router.push("/login")
@@ -107,9 +107,9 @@ export default function RegisterPage() {
               <div className="grid grid-cols-2 gap-4">
                 <button
                   type="button"
-                  onClick={() => setAccountType("participant")}
+                  onClick={() => setAccountType("attendee")}
                   className={`p-4 rounded-xl border-2 transition-all ${
-                    accountType === "participant"
+                    accountType === "attendee"
                       ? "border-[#f1c6ff] bg-[#f1c6ff]/20"
                       : "border-[#f1c6ff]/20 bg-[#1e1732]/50 hover:border-[#f1c6ff]/40"
                   }`}
@@ -120,9 +120,9 @@ export default function RegisterPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setAccountType("coordinator")}
+                  onClick={() => setAccountType("organizer")}
                   className={`p-4 rounded-xl border-2 transition-all ${
-                    accountType === "coordinator"
+                    accountType === "organizer"
                       ? "border-[#f1c6ff] bg-[#f1c6ff]/20"
                       : "border-[#f1c6ff]/20 bg-[#1e1732]/50 hover:border-[#f1c6ff]/40"
                   }`}
@@ -211,7 +211,7 @@ export default function RegisterPage() {
               </div>
 
               {/* Coordinator-specific fields */}
-              {accountType === "coordinator" && (
+              {accountType === "organizer" && (
                 <>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-[#ffddff]">Nombre de Empresa</label>
