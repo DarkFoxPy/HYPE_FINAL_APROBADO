@@ -1,22 +1,27 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Link from "next/link"
+import { useRouter } from "next/navigation"
+import Link from "next/link" 
 import { GlassCard } from "@/components/ui/glass-card"
 import { GradientButton } from "@/components/ui/gradient-button"
-import { Calendar, MapPin, Users, Search, Sparkles, SlidersHorizontal } from "lucide-react"
+import { Calendar, MapPin, Users, Search, Sparkles, SlidersHorizontal, LogOut } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { FuturisticBackground } from "@/components/futuristic-background"
+import toast from "react-hot-toast"
+import { useAuthStore } from "@/lib/stores/auth-store"
 
 const CATEGORIES = ["Todos", "Conferencia", "Concierto", "Exposición", "Networking", "Taller", "Deportivo", "Cultural"]
 
 export default function DiscoverPage() {
+  const router = useRouter()
   const [events, setEvents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("Todos")
   const [dateFilter, setDateFilter] = useState<"all" | "today" | "week" | "month">("all")
   const [sortBy, setSortBy] = useState<"date" | "popularity" | "availability">("date")
+  const { isAuthenticated, user, logout } = useAuthStore()
 
   useEffect(() => {
     const fetchPublishedEvents = async () => {
@@ -46,6 +51,12 @@ export default function DiscoverPage() {
 
     fetchPublishedEvents()
   }, [])
+
+  const handleLogout = async () => {
+    await logout()
+    toast.success("Sesión cerrada exitosamente")
+    router.push("/")
+  }
 
   const filteredEvents = events.filter((event) => {
     const matchesSearch =
@@ -106,16 +117,31 @@ export default function DiscoverPage() {
               </span>
             </Link>
 
-            <div className="flex items-center gap-4">
-              <Link href="/login">
-                <button className="px-6 py-2.5 text-[#e2e2e2] hover:text-[#f1c6ff] transition-all duration-300">
-                  Iniciar Sesión
+            {isAuthenticated && user ? (
+              <div className="flex items-center gap-4">
+                <Link href="/events" className="text-sm font-medium text-foreground/80 hover:text-foreground">
+                  Mis Eventos
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="px-3 py-2 rounded-md text-sm font-medium text-foreground/60 hover:text-foreground/80 transition-colors"
+                  title="Cerrar sesión"
+                >
+                  <LogOut className="h-5 w-5" />
                 </button>
-              </Link>
-              <Link href="/register">
-                <GradientButton>Crear Cuenta</GradientButton>
-              </Link>
-            </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-4">
+                <Link href="/login">
+                  <button className="px-6 py-2.5 text-[#e2e2e2] hover:text-[#f1c6ff] transition-all duration-300">
+                    Iniciar Sesión
+                  </button>
+                </Link>
+                <Link href="/register">
+                  <GradientButton>Crear Cuenta</GradientButton>
+                </Link>
+              </div>
+            )}
           </div>
         </header>
 
@@ -200,9 +226,9 @@ export default function DiscoverPage() {
                   key={category}
                   onClick={() => setSelectedCategory(category)}
                   className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                    selectedCategory === category
-                      ? "bg-gradient-to-r from-primary to-secondary text-white glow-primary"
-                      : "bg-surface/50 text-muted hover:text-foreground hover:bg-surface"
+                    selectedCategory === category // Botón activo
+                      ? "bg-gradient-to-r from-primary to-secondary text-background font-bold glow-primary"
+                      : "bg-surface/50 text-foreground/60 hover:text-foreground hover:bg-surface" // Botón inactivo
                   }`}
                 >
                   {category}
@@ -293,7 +319,7 @@ export default function DiscoverPage() {
 
                       {/* Event Info */}
                       <div className="flex-1 space-y-3">
-                        <h3 className="text-xl font-bold text-foreground line-clamp-2 group-hover:gradient-text transition-all">
+                        <h3 className="text-xl font-bold text-foreground line-clamp-2 group-hover:gradient-text transition-all text-glow">
                           {event.title}
                         </h3>
                         <p className="text-sm text-muted line-clamp-2">{event.description}</p>

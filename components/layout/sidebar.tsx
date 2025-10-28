@@ -7,17 +7,30 @@ import { useUIStore } from "@/lib/stores/ui-store"
 import { useAuthStore } from "@/lib/stores/auth-store"
 import { Calendar, Compass, LayoutDashboard, User, Sparkles, X } from "lucide-react"
 
-const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Mis Eventos", href: "/events", icon: Calendar },
-  { name: "Descubrir", href: "/discover", icon: Compass },
-  { name: "Perfil", href: "/profile", icon: User },
+const allNavigationItems = [
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["sysadmin", "admin-reporte"] },
+  { name: "Mis Eventos", href: "/events", icon: Calendar, roles: ["sysadmin", "administrador", "organizer"] },
+  { name: "Descubrir", href: "/discover", icon: Compass, roles: ["sysadmin", "administrador", "organizer", "admin-reporte", "attendee"] },
+  { name: "Perfil", href: "/profile", icon: User, roles: ["sysadmin", "administrador", "admin-reporte", "organizer", "attendee"] },
 ]
 
 export function Sidebar() {
   const pathname = usePathname()
   const { sidebarOpen, setSidebarOpen } = useUIStore()
   const { user } = useAuthStore()
+
+  // Filtra los elementos de navegación basados en los roles del usuario.
+  const navigation = user
+    ? allNavigationItems.filter((item) => {
+        // Si el item no tiene roles definidos, es público para todos los autenticados.
+        if (!item.roles || item.roles.length === 0) {
+          return true
+        }
+        // Comprueba si el usuario tiene al menos uno de los roles requeridos.
+        return item.roles.some((role) => user.roles.includes(role))
+      })
+    : [] // Si no hay usuario, no se muestra ningún item de navegación en el sidebar.
+
 
   if (!sidebarOpen) return null
 
@@ -81,12 +94,12 @@ export function Sidebar() {
           <div className="p-4 border-t border-[#f1c6ff]/30">
             <div className="flex items-center gap-3 p-3 rounded-lg bg-[#2a1f3d]/50">
               <img
-                src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
-                alt={user.name}
+                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`}
+                alt={user.fullName}
                 className="w-10 h-10 rounded-full ring-2 ring-[#f1c6ff]/50"
               />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate text-[#ffddff]">{user.name}</p>
+                <p className="text-sm font-medium truncate text-[#ffddff]">{user.fullName}</p>
                 <p className="text-xs text-white truncate">@{user.username}</p>
               </div>
             </div>

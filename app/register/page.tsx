@@ -15,7 +15,7 @@ export default function RegisterPage() {
   const router = useRouter()
   const { register } = useAuthStore()
   const [loading, setLoading] = useState(false)
-  const [accountType, setAccountType] = useState<"attendee" | "organizer">("attendee")
+  const [accountType, setAccountType] = useState<"attendee" | "organizer">("organizer")
   const [profilePicture, setProfilePicture] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: "",
@@ -67,7 +67,7 @@ export default function RegisterPage() {
         username: formData.username,
         email: formData.email,
         password: formData.password,
-        role: accountType,
+        roleName: accountType, // Cambiamos 'role' por 'roleName' para que coincida con la API
         companyName: accountType === "organizer" ? formData.companyName : "",
         ruc: accountType === "organizer" ? formData.ruc : "",
         businessSector: accountType === "organizer" ? formData.businessSector : "",
@@ -103,34 +103,17 @@ export default function RegisterPage() {
 
             {/* Account Type Selection */}
             <div className="space-y-3">
-              <label className="block text-sm font-medium text-[#ffddff]">Tipo de Cuenta</label>
-              <div className="grid grid-cols-2 gap-4">
-                <button
-                  type="button"
-                  onClick={() => setAccountType("attendee")}
-                  className={`p-4 rounded-xl border-2 transition-all ${
-                    accountType === "attendee"
-                      ? "border-[#f1c6ff] bg-[#f1c6ff]/20"
-                      : "border-[#f1c6ff]/20 bg-[#1e1732]/50 hover:border-[#f1c6ff]/40"
-                  }`}
-                >
-                  <User className="w-8 h-8 mx-auto mb-2 text-[#f1c6ff]" />
-                  <p className="font-semibold text-[#ffddff]">Participante</p>
-                  <p className="text-xs text-[#78767b] mt-1">Asiste a eventos</p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAccountType("organizer")}
-                  className={`p-4 rounded-xl border-2 transition-all ${
-                    accountType === "organizer"
-                      ? "border-[#f1c6ff] bg-[#f1c6ff]/20"
-                      : "border-[#f1c6ff]/20 bg-[#1e1732]/50 hover:border-[#f1c6ff]/40"
-                  }`}
-                >
-                  <Briefcase className="w-8 h-8 mx-auto mb-2 text-[#f1c6ff]" />
-                  <p className="font-semibold text-[#ffddff]">Coordinador</p>
-                  <p className="text-xs text-[#78767b] mt-1">Organiza eventos</p>
-                </button>
+              <label className="block text-sm font-medium text-center text-[#ffddff]">Tipo de Cuenta</label>
+              <div
+                className="p-4 rounded-xl border-2 transition-all border-[#f1c6ff] bg-[#f1c6ff]/20 flex items-center justify-center gap-4"
+              >
+                <Briefcase className="w-8 h-8 text-[#f1c6ff]" />
+                <div>
+                  <p className="font-semibold text-lg text-[#ffddff]">Coordinador de Eventos</p>
+                  <p className="text-xs text-[#e2e2e2] mt-1">
+                    Tendrás acceso a todas las herramientas para crear y gestionar tus eventos.
+                  </p>
+                </div>
               </div>
             </div>
 

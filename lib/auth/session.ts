@@ -9,7 +9,7 @@ const SESSION_COOKIE = "session"
 export interface SessionData {
   userId: string
   email: string
-  role: string
+  roles: string[]
 }
 
 export async function createSession(data: SessionData) {
@@ -61,7 +61,7 @@ export async function getUserFromRequest(request: NextRequest) {
       email: user.email,
       name: user.name,
       username: user.username,
-      role: user.role,
+            roles: user.roles,
       avatar: user.avatar,
       bio: user.bio,
       companyName: user.company_name,

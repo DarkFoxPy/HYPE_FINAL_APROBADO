@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       password,
       name: fullName,
       username,
-      role,
+      role: roleName, // Renombramos para claridad, ej: 'organizer'
       companyName,
       ruc,
       businessSector,
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     // Validación de entrada básica
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!email || !password || !username || !fullName || !role) {
+    if (!email || !password || !username || !fullName || !roleName) {
       return NextResponse.json(
         { error: "Email, password, username, fullName y role son requeridos." },
         { status: 400 },
@@ -44,36 +44,35 @@ export async function POST(request: NextRequest) {
 
     connection = await getConnection()
 
-    const sql = `INSERT INTO users (username, email, password_hash, full_name, role)
-                 VALUES (:username, :email, :passwordHash, :fullName, :role)
-                 RETURNING id INTO :id`
+    // Usamos el procedimiento almacenado del paquete auth_pkg
+    const sql = `BEGIN auth_pkg.register_user(:username, :email, :passwordHash, :fullName, :roleName, :new_user_id); END;`
 
     // Insertar el nuevo usuario y obtener el ID generado
-    const result = await connection.execute<{ id: number[] }>(
+    const result = await connection.execute<{ new_user_id: number[] }>(
       sql,
       {
         username,
         email,
         passwordHash,
         fullName,
-        role,
-        id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+        roleName,
+        new_user_id: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
       },
-      { autoCommit: true }, // autoCommit para asegurar que la transacción se complete
+      { autoCommit: true },
     )
 
-    if (!result.outBinds || !result.outBinds.id) {
+    if (!result.outBinds || !result.outBinds.new_user_id) {
       throw new Error("No se pudo obtener el ID del nuevo usuario.")
     }
 
-    const newUserId = result.outBinds.id[0]
+    const newUserId = result.outBinds.new_user_id[0]
 
     const newUser = {
       id: newUserId,
       username,
       email,
       fullName,
-      role,
+      roles: [roleName], // Devolvemos un array de roles
     }
 
     return NextResponse.json({ user: newUser }, { status: 201 })
