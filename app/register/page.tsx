@@ -101,21 +101,7 @@ export default function RegisterPage() {
               <p className="text-sm text-[#e2e2e2]">Únete a la revolución de eventos 3D</p>
             </div>
 
-            {/* Account Type Selection */}
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-center text-[#ffddff]">Tipo de Cuenta</label>
-              <div
-                className="p-4 rounded-xl border-2 transition-all border-[#f1c6ff] bg-[#f1c6ff]/20 flex items-center justify-center gap-4"
-              >
-                <Briefcase className="w-8 h-8 text-[#f1c6ff]" />
-                <div>
-                  <p className="font-semibold text-lg text-[#ffddff]">Coordinador de Eventos</p>
-                  <p className="text-xs text-[#e2e2e2] mt-1">
-                    Tendrás acceso a todas las herramientas para crear y gestionar tus eventos.
-                  </p>
-                </div>
-              </div>
-            </div>
+          
 
             {/* Profile Picture Upload */}
             <div className="space-y-2">
