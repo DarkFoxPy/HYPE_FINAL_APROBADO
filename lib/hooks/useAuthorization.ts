@@ -1,38 +1,50 @@
 "use client"
 
 import { useAuthStore } from "@/lib/stores/auth-store"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { useEffect } from "react"
 
 // Define los roles posibles para mejorar la seguridad del tipado
-type Role = "sysadmin" | "administrador" | "admin-reporte" | "organizer" | "attendee"
+type Role = "sysadmin" | "administrador" | "admin-reporte" | "organizer" | "attendee" | "consumer"
 
 /**
  * Hook para gestionar la autorización basada en roles.
  * Redirige al usuario si no tiene los roles requeridos.
  * @param requiredRoles - Una lista de roles. El usuario debe tener al menos uno para acceder.
- * @param redirectTo - La página a la que se redirigirá si el usuario no está autenticado. Por defecto es /login.
+ * @param options - Opciones para configurar el comportamiento del hook.
  */
 export function useAuthorization(requiredRoles: Role[], redirectTo = "/login") {
   const { user, isAuthenticated } = useAuthStore()
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
-    // Si el estado de autenticación aún no se ha cargado, no hacemos nada todavía.
     if (isAuthenticated === false && user === null) {
-      // Podríamos esperar a que la persistencia cargue, pero por ahora redirigimos si no hay user
-      // router.push(redirectTo);
       return
     }
 
-    // Si está autenticado, verificar los roles
-    const userRoles = (user as any)?.roles || []
-    const hasRequiredRole = requiredRoles.some((role) => userRoles.includes(role))
+    if (isAuthenticated && user) {
+      const userRoles = user.roles || []
+      const isConsumerType = (userRoles.length === 1 && userRoles[0] === "consumer") || userRoles.length === 0
 
-    if (!hasRequiredRole && isAuthenticated) {
-      router.push("/unauthorized") // Redirigir a la página de acceso denegado
+      // --- LÓGICA EXCLUSIVA PARA EL ROL 'CONSUMER' O SIN ROL ---
+      if (isConsumerType) {
+        // Si es de tipo consumer, solo puede estar en /discover o sus sub-rutas.
+        if (!pathname.startsWith("/discover")) {
+          router.push("/discover")
+        }
+        return // No se aplican más reglas para este tipo de usuario.
+      }
+
+      // --- LÓGICA ORIGINAL PARA LOS DEMÁS ROLES (SIN CAMBIOS) ---
+      if (requiredRoles.length > 0) {
+        const hasRequiredRole = requiredRoles.some((role) => userRoles.includes(role))
+        if (!hasRequiredRole) {
+          router.push("/unauthorized") // Redirigir a la página de acceso denegado
+        }
+      }
     }
-  }, [user, isAuthenticated, router, requiredRoles, redirectTo])
+  }, [user, isAuthenticated, router, requiredRoles, redirectTo, pathname])
 
   // Devolvemos una función para verificar roles específicos si es necesario
   const hasRole = (roles: Role | Role[]) => {

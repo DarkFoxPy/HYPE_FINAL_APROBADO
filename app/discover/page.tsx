@@ -119,9 +119,12 @@ export default function DiscoverPage() {
 
             {isAuthenticated && user ? (
               <div className="flex items-center gap-4">
-                <Link href="/events" className="text-sm font-medium text-foreground/80 hover:text-foreground">
-                  Mis Eventos
-                </Link>
+                {/* Ocultar "Mis Eventos" si el usuario es de tipo consumer */}
+                {!(user.roles.includes("consumer") || user.roles.length === 0) && (
+                  <Link href="/events" className="text-sm font-medium text-foreground/80 hover:text-foreground">
+                    Mis Eventos
+                  </Link>
+                )}
                 <button
                   onClick={handleLogout}
                   className="px-3 py-2 rounded-md text-sm font-medium text-foreground/60 hover:text-foreground/80 transition-colors"
@@ -279,8 +282,12 @@ export default function DiscoverPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {sortedEvents.map((event) => {
-                const availableSpots = event.capacity - event.registrations_count
-                const percentFull = (event.registrations_count / event.capacity) * 100
+                // Aseguramos que los valores sean numéricos para evitar errores de NaN.
+                const capacity = Number(event.capacity) || 0
+                const registrations = Number(event.registrations_count) || 0
+                const availableSpots = capacity - registrations
+                // Evitamos la división por cero si la capacidad es 0.
+                const percentFull = capacity > 0 ? (registrations / capacity) * 100 : 0
 
                 return (
                   <Link key={event.id} href={`/discover/${event.slug}/${event.id}`}>

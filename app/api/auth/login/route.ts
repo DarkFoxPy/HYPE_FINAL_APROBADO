@@ -79,6 +79,10 @@ export async function POST(request: { json: () => Promise<any> }) {
     }
     await createSession(sessionData)
 
+    // --- LÓGICA PARA IDENTIFICAR AL ROL 'CONSUMER' O SIN ROL ---
+    // Si el usuario solo tiene el rol 'consumer' o no tiene roles, se marca para redirección especial.
+    const isConsumerType = (user.ROLES.length === 1 && user.ROLES[0] === "consumer") || user.ROLES.length === 0
+
     // Devolver los datos del usuario al frontend
     const responseUser = {
       id: user.ID,
@@ -86,6 +90,7 @@ export async function POST(request: { json: () => Promise<any> }) {
       roles: user.ROLES,
       username: user.USERNAME,
       fullName: user.FULL_NAME,
+      isConsumer: isConsumerType, // Añadimos esta bandera
     }
 
     console.log("Session created successfully for user:", email)
