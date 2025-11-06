@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation" 
 import { Bell, Menu, Search, X } from "lucide-react"
 import { useUIStore } from "@/lib/stores/ui-store"
 import { useNotificationsStore } from "@/lib/stores/notifications-store"
@@ -9,6 +9,7 @@ import { useAuthStore } from "@/lib/stores/auth-store"
 import { useEventsStore } from "@/lib/stores/events-store"
 import { GradientButton } from "@/components/ui/gradient-button"
 import Link from "next/link"
+import toast from "react-hot-toast"
 
 export function Header() {
   const router = useRouter()
@@ -38,6 +39,12 @@ export function Header() {
     if (event) {
       router.push(`/events/${event.slug}/${eventId}`)
     }
+  }
+
+  const handleLogout = async () => {
+    await logout()
+    toast.success("Sesión cerrada exitosamente")
+    router.push("/")
   }
 
   return (
@@ -119,7 +126,7 @@ export function Header() {
           </Link>
 
           {/* Logout */}
-          <GradientButton variant="outline" size="sm" onClick={logout} glow={false}>
+          <GradientButton variant="outline" size="sm" onClick={handleLogout} glow={false}>
             Salir
           </GradientButton>
         </div>

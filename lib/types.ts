@@ -3,7 +3,7 @@ export interface User {
   email: string
   name: string
   username: string
-  role: "participant" | "coordinator" | "super_admin"
+  roles: string[] // <-- CAMBIADO DE 'role' a 'roles'
   avatar?: string
   bio?: string
   phone?: string

@@ -26,9 +26,16 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      await login(formData.email, formData.password)
+      const user = await login(formData.email, formData.password)
       toast.success("¡Bienvenido de vuelta!")
-      router.push("/dashboard")
+
+      // Lógica de redirección basada en roles
+      if (user.roles.includes("administrador")) {
+        router.push("/profile")
+      } else {
+        router.push("/dashboard")
+      }
+
     } catch (error) {
       toast.error("Error al iniciar sesión. Verifica tus credenciales.")
     } finally {

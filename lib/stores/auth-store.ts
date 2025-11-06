@@ -2,11 +2,11 @@ import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
 interface User {
-  id: number
-  email: string
-  username: string
-  fullName: string
-  role: string
+  id: number;
+  email: string;
+  username: string;
+  fullName: string;
+  roles: string[]; // <-- CAMBIADO DE 'role' a 'roles'
 }
 
 interface RegisterData {
@@ -14,14 +14,14 @@ interface RegisterData {
   password: string
   name: string
   username: string
-  role?: string
+  roleName?: string; // <-- CAMBIADO DE 'role' a 'roleName'
 }
 
 interface AuthState {
   user: User | null
   isAuthenticated: boolean
   register: (data: RegisterData) => Promise<void>
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string, password: string) => Promise<User>
   logout: () => Promise<void>
   setUser: (user: User | null) => void
 }
@@ -62,6 +62,7 @@ export const useAuthStore = create<AuthState>()(
         const { user } = await response.json()
         console.log("Usuario recibido en el frontend:", user) // Añadimos este log para depurar
         set({ user, isAuthenticated: true })
+        return user
       },
 
       logout: async () => {

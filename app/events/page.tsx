@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { useAuthStore } from "@/lib/stores/auth-store"
+import Link from "next/link" 
 import { useEventsStore } from "@/lib/stores/events-store"
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
@@ -11,22 +10,21 @@ import { GlassCard } from "@/components/ui/glass-card"
 import { GradientButton } from "@/components/ui/gradient-button"
 import { FuturisticBackground } from "@/components/futuristic-background"
 import { Calendar, MapPin, Users, Plus, Edit, Trash2, Eye, Upload } from "lucide-react"
-import toast from "react-hot-toast"
+import toast from "react-hot-toast" 
+import { useAuthorization } from "../../lib/hooks/useAuthorization"
 
 export default function EventsPage() {
   const router = useRouter()
-  const { isAuthenticated, user } = useAuthStore()
+  // Proteger la ruta: sysadmin, administrador y organizer pueden acceder.
+  // admin-reporte será redirigido.
+  const { user, hasRole } = useAuthorization(["sysadmin", "administrador", "organizer"])
+
   const { events, deleteEvent, getEventsByOrganizer, publishEvent, updateEvent } = useEventsStore()
   const [filter, setFilter] = useState<"all" | "published" | "draft">("all")
   const [myEvents, setMyEvents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/login")
-      return
-    }
-
     const loadEvents = async () => {
       if (user) {
         const organizerEvents = await getEventsByOrganizer(user.id)
@@ -36,11 +34,7 @@ export default function EventsPage() {
     }
 
     loadEvents()
-  }, [isAuthenticated, user, router])
-
-  if (!isAuthenticated || loading) {
-    return null
-  }
+  }, [user, getEventsByOrganizer])
 
   const filteredEvents = filter === "all" ? myEvents : myEvents.filter((event) => event.status === filter)
 
@@ -86,7 +80,7 @@ export default function EventsPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
-                <h1 className="text-3xl font-bold text-[#ffddff] mb-2">Mis Eventos</h1>
+                <h1 className="text-3xl font-bold text-[#ffddff] mb-2 text-glow">Mis Eventos</h1>
                 <p className="text-[#e2e2e2]">Gestiona todos tus eventos en un solo lugar</p>
               </div>
               <Link href="/events/create">
@@ -105,9 +99,9 @@ export default function EventsPage() {
                     key={status}
                     onClick={() => setFilter(status)}
                     className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                      filter === status
-                        ? "bg-gradient-to-r from-[#f1c6ff] to-[#ffddff] text-[#1e1732] glow-primary"
-                        : "bg-[#1e1732]/50 text-[#78767b] hover:text-[#ffddff]"
+                      filter === status // Botón activo
+                        ? "bg-gradient-to-r from-primary to-secondary text-background font-bold glow-primary"
+                        : "bg-surface/50 text-foreground/60 hover:text-foreground hover:bg-surface" // Botón inactivo
                     }`}
                   >
                     {status === "all" ? "Todos" : status === "published" ? "Publicados" : "Borradores"}
