@@ -1475,6 +1475,9 @@ export default function Home() {
                     </div>
                   </div>
 
+
+
+
                   <div className="flex-1 relative z-10">
                     <h3 className="text-3xl font-bold mb-4 text-[#e2e2e2] group-hover:text-[#f1c6ff] transition-all duration-500">
                       {item.title}
