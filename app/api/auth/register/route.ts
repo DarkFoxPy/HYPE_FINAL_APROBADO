@@ -12,17 +12,19 @@ export async function POST(request: NextRequest) {
       password,
       name: fullName,
       username,
-      role: roleName, // Renombramos para claridad, ej: 'organizer'
       companyName,
       ruc,
       businessSector,
     } = await request.json()
 
+    // Asignar por defecto el rol 'consumer' a todos los nuevos registros.
+    const roleName = "consumer"
+
     // Validación de entrada básica
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!email || !password || !username || !fullName || !roleName) {
+    if (!email || !password || !username || !fullName) {
       return NextResponse.json(
-        { error: "Email, password, username, fullName y role son requeridos." },
+        { error: "Email, password, username y fullName son requeridos." },
         { status: 400 },
       )
     }
